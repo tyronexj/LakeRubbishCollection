@@ -1,3 +1,4 @@
+import os
 import pygame as pg
 import random as rd
 
@@ -17,7 +18,7 @@ class Game:
     class Setting:
         name = 'Rubbish Collecting Game'
         font_name = 'consolas'
-        width = 600
+        width = 480
         height = 600
         fps = 30
         time_total_ms = 30 * 1000
@@ -30,13 +31,24 @@ class Game:
         fish_min_speed = 2
         num_of_rubbishes = 3
         num_of_fishes = 5
+        player_width = 100
+        player_height = 50
+
+        img_dir = os.path.join(os.path.dirname(__file__), "img")
 
     class Player(pg.sprite.Sprite):
         def __init__(self):
             pg.sprite.Sprite.__init__(self)
-            self.image = pg.Surface((30, 30))
-            self.image.fill(Colour.green)
+            player_img = pg.image.load(os.path.join(Game.Setting.img_dir, 'diver.png')).convert()
+            self.image = pg.transform.scale(player_img, (Game.Setting.player_width, Game.Setting.player_height))
+            self.image.set_colorkey(Colour.blue)
+            # self.image = pg.Surface((50, 38))
+            # self.image.fill(Colour.green)
             self.rect = self.image.get_rect()
+
+            self.radius = self.rect.width * 0.7 // 2
+            # pg.draw.circle(self.image, Colour.red, self.rect.center, self.radius)
+
             self.rect.centerx = Game.Setting.width // 2
             self.rect.bottom = Game.Setting.height - Game.Setting.screen_board
             self.speed_x = 0
@@ -68,9 +80,16 @@ class Game:
     class Rubbish(pg.sprite.Sprite):
         def __init__(self):
             pg.sprite.Sprite.__init__(self)
-            self.image = pg.Surface((20, 20))
-            self.image.fill(Colour.red)
+            rubbish_img = pg.image.load(os.path.join(Game.Setting.img_dir, 'rubbish.png')).convert()
+            self.image = pg.transform.scale(rubbish_img, (40, 40))
+            self.image.set_colorkey(Colour.blue)
+            # self.image = pg.Surface((20, 20))
+            # self.image.fill(Colour.red)
             self.rect = self.image.get_rect()
+
+            self.radius = self.rect.width * 0.65 // 2
+            # pg.draw.circle(self.image, Colour.purple, self.rect.center, self.radius)
+
             self.rect.x = rd.randint(0, Game.Setting.width - self.rect.width)
             self.rect.y = 0
             self.speed_x = 0
@@ -85,9 +104,16 @@ class Game:
     class Fish(pg.sprite.Sprite):
         def __init__(self):
             pg.sprite.Sprite.__init__(self)
-            self.image = pg.Surface((20, 20))
-            self.image.fill(Colour.purple)
+            fish_img = pg.image.load(os.path.join(Game.Setting.img_dir, 'fish.png')).convert()
+            self.image = pg.transform.scale(fish_img, (40, 40))
+            self.image.set_colorkey(Colour.blue)
+            # self.image = pg.Surface((20, 20))
+            # self.image.fill(Colour.purple)
             self.rect = self.image.get_rect()
+
+            self.radius = self.rect.width * 0.5 // 2
+            # pg.draw.circle(self.image, Colour.cyan, self.rect.center, self.radius)
+
             self.speed_x = 0
             self.speed_y = 0
             self.init_position_speed()
@@ -110,6 +136,7 @@ class Game:
         pg.display.set_caption(Game.Setting.name)
         self.clock = pg.time.Clock()
         self.font_name = pg.font.match_font(Game.Setting.font_name)
+        self.background_img = pg.image.load(os.path.join(Game.Setting.img_dir, 'lake.png')).convert()
 
         self.all_sprites = pg.sprite.Group()
         self.rubbishes = pg.sprite.Group()
@@ -119,15 +146,17 @@ class Game:
         self.score = 0
         # this game includes 3 states: 'Start', 'Play' and 'Over'
         self.state = 'Start'
-        self.start_time: int = 0
+        self.start_time = 0
+
+        self.die_reason = ''
 
     def game_reset(self):
         self.score = 0
         self.state = 'Play'
         self.start_time = pg.time.get_ticks()
 
-        for s in self.all_sprites:
-            s.kill()
+        for sprite in self.all_sprites:
+            sprite.kill()
 
         self.player = Game.Player()
         self.all_sprites.add(self.player)
@@ -179,11 +208,12 @@ class Game:
             if event.key == pg.K_SPACE:
                 self.game_reset()
 
-    def show_instruction(self, y: int, text: str):
-        self.draw_text(surf=self.screen, text=text, size=24, x=Game.Setting.width // 2, y=y)
+    def show_instruction(self, y: int, text: str, size=24):
+        self.draw_text(surf=self.screen, text=text, size=size, x=Game.Setting.width // 2, y=y, colour=Colour.white)
 
     def show_start_info(self):
-        self.screen.fill(Colour.blue)
+        # self.screen.fill(Colour.blue)
+        self.screen.blit(self.background_img, self.background_img.get_rect())
         self.all_sprites.draw(self.screen)
         instruction_y = 100
         instruction_y_inc = 30
@@ -201,18 +231,24 @@ class Game:
         instruction_y += instruction_y_inc
         self.show_instruction(text=f'seconds without interrupting ', y=instruction_y)
         instruction_y += instruction_y_inc
-        self.show_instruction(text=f'the fish, which is bumping into ', y=instruction_y)
+        self.show_instruction(text=f"the fish (in other words, don't ", y=instruction_y)
         instruction_y += instruction_y_inc
-        self.show_instruction(text=f'them. Remember to keep an eye ', y=instruction_y)
+        self.show_instruction(text=f'bump into them) Remember to keep ', y=instruction_y)
         instruction_y += instruction_y_inc
-        self.show_instruction(text=f"on the 'time left' section!", y=instruction_y)
+        self.show_instruction(text=f"an eye on the 'time left' section! ", y=instruction_y)
+        instruction_y += instruction_y_inc
+        instruction_y += instruction_y_inc
+        self.show_instruction(text=f"Your score may go under 0. So you'd ", y=instruction_y, size=15)
+        instruction_y += instruction_y_inc
+        self.show_instruction(text=f"better don't let it (go under 0)!", y=instruction_y, size=15)
         instruction_y += instruction_y_inc
         instruction_y += instruction_y_inc
         self.draw_text(surf=self.screen, text=f'Click ***SPACE*** to Start!',
                        size=24, x=Game.Setting.width // 2, y=instruction_y)
 
     def show_game_info(self, time_left_ms):
-        self.screen.fill(Colour.blue)
+        # self.screen.fill(Colour.blue)
+        self.screen.blit(self.background_img, self.background_img.get_rect())
         self.all_sprites.draw(self.screen)
         self.draw_text(surf=self.screen, text=f'Score: {self.score}',
                        size=24, x=100, y=20)
@@ -222,29 +258,32 @@ class Game:
     def normal_play(self):
         self.all_sprites.update()
 
-        hits_rubbishes = pg.sprite.spritecollide(sprite=self.player, group=self.rubbishes,
-                                                 dokill=True)
+        hits_rubbishes = pg.sprite.spritecollide(self.player, self.rubbishes, True)
         for _ in hits_rubbishes:
             self.score += 5
-            r = Game.Rubbish()
-            self.all_sprites.add(r)
-            self.rubbishes.add(r)
+            rubbish = Game.Rubbish()
+            self.all_sprites.add(rubbish)
+            self.rubbishes.add(rubbish)
 
-        rubbishes_hits_fishes = pg.sprite.groupcollide(groupa=self.rubbishes, groupb=self.fishes,
-                                                       dokilla=False, dokillb=True)
+        rubbishes_hits_fishes = pg.sprite.groupcollide(self.rubbishes, self.fishes, False, True,
+                                                       pg.sprite.collide_circle)
         for _ in rubbishes_hits_fishes:
             self.score -= 1
-            f = Game.Fish()
-            self.all_sprites.add(f)
-            self.fishes.add(f)
+            fish = Game.Fish()
+            self.all_sprites.add(fish)
+            self.fishes.add(fish)
 
-        hits_fishes = pg.sprite.spritecollide(sprite=self.player, group=self.fishes,
-                                              dokill=False)
-        die = True if hits_fishes else False
+        hits_fishes = pg.sprite.spritecollide(self.player, self.fishes, False, pg.sprite.collide_circle)
+        if hits_fishes:
+            die = True
+            self.die_reason = 'Interrupting a fish'
+        else:
+            die = False
 
         time_left_ms = Game.Setting.time_total_ms - (pg.time.get_ticks() - self.start_time)
         if time_left_ms <= 0:
             die = True
+            self.die_reason = 'Timeout'
 
         self.show_game_info(time_left_ms)
 
@@ -252,18 +291,22 @@ class Game:
             self.state = 'Over'
 
     def game_over(self):
-        self.screen.fill(Colour.blue)
+        # self.screen.fill(Colour.blue)
+        self.screen.blit(self.background_img, self.background_img.get_rect())
         self.all_sprites.draw(self.screen)
         self.draw_text(surf=self.screen, text=f'YOU DIED!',
                        size=40, x=Game.Setting.width // 2, y=Game.Setting.height // 2 - 90)
-        self.draw_text(surf=self.screen, text=f'Score: {self.score}',
+        self.draw_text(surf=self.screen, text=f'Final score: {self.score}',
                        size=24, x=Game.Setting.width // 2, y=Game.Setting.height // 2 - 40)
         self.draw_text(surf=self.screen, text=f'Click ***SPACE*** to re-spawn!',
                        size=24, x=Game.Setting.width // 2, y=Game.Setting.height // 2)
+        self.draw_text(surf=self.screen, text='Die reason: %s' % self.die_reason,
+                       size=18, x=Game.Setting.width // 2, y=Game.Setting.height // 2 + 60)
 
-    def draw_text(self, surf, text: str, size: int, x: int, y: int, antialias: bool = True):
+    def draw_text(self, surf, text: str, size: int, x: int, y: int, antialias: bool = True,
+                  colour: tuple = Colour.black):
         font = pg.font.Font(self.font_name, size)
-        text_surface = font.render(text, antialias, Colour.white)
+        text_surface = font.render(text, antialias, colour)
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x, y)
         surf.blit(text_surface, text_rect)
