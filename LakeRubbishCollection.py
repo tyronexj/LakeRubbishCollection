@@ -1,3 +1,5 @@
+# Background music is from Frozen Jam by tgfcoder <https://twitter.com/tgfcoder> licensed under CC-BY-3
+
 import os
 import pygame as pg
 import random as rd
@@ -38,7 +40,8 @@ class Game:
         fish_width = 35
         fish_height = 35
 
-        img_dir = os.path.join(os.path.dirname(__file__), "img")
+        img_dir = os.path.join(os.path.dirname(__file__), 'img')
+        snd_dir = os.path.join(os.path.dirname(__file__), 'snd')
 
     class Player(pg.sprite.Sprite):
         def __init__(self):
@@ -144,6 +147,10 @@ class Game:
         self.clock = pg.time.Clock()
         self.font_name = pg.font.match_font(Game.Setting.font_name)
         self.background_img = pg.image.load(os.path.join(Game.Setting.img_dir, 'lake.png')).convert()
+        self.score_snd = pg.mixer.Sound(os.path.join(Game.Setting.snd_dir, 'pow4.wav'))
+        self.game_over_snd = pg.mixer.Sound(os.path.join(Game.Setting.snd_dir, 'expl6.wav'))
+        pg.mixer.music.load(os.path.join(Game.Setting.snd_dir, 'SeamlessLoop.ogg'))
+        pg.mixer.music.set_volume(0.3)
 
         self.all_sprites = pg.sprite.Group()
         self.rubbishes = pg.sprite.Group()
@@ -179,6 +186,7 @@ class Game:
             self.all_sprites.add(fish)
 
     def game_loop(self):
+        pg.mixer.music.play(loops=-1)
         running = True
         while running:
             self.clock.tick(Game.Setting.fps)
@@ -271,6 +279,7 @@ class Game:
             rubbish = Game.Rubbish()
             self.all_sprites.add(rubbish)
             self.rubbishes.add(rubbish)
+            self.score_snd.play()
 
         rubbishes_hits_fishes = pg.sprite.groupcollide(self.rubbishes, self.fishes, False, True,
                                                        pg.sprite.collide_circle)
@@ -283,6 +292,7 @@ class Game:
         hits_fishes = pg.sprite.spritecollide(self.player, self.fishes, False, pg.sprite.collide_circle)
         if hits_fishes:
             die = True
+            self.game_over_snd.play()
             self.game_over_reason = 'Interrupting a fish'
         else:
             die = False
