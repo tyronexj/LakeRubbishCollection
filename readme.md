@@ -1,6 +1,6 @@
 #### Introduction:
 LakeRubbishCollection is my work for Science Talent Search. It is a computer game (program (using 
-Python as the language)).
+the computer language Python)).
 
 #### Instructions:
 There's too many rubbishes in the lake, which is harmful to either the ecosystem and the environment.
