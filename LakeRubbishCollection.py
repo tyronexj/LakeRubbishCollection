@@ -33,8 +33,8 @@ class Game:
         fish_min_speed = 2
         num_of_rubbishes = 3
         num_of_fishes = 5
-        player_width = 80
-        player_height = 40
+        player_width = 100
+        player_height = 50
         rubbish_width = 35
         rubbish_height = 35
         fish_width = 35
@@ -54,8 +54,10 @@ class Game:
             # self.image.fill(Colour.green)
             self.rect = self.image.get_rect()
 
-            self.radius = self.rect.width * 0.7 // 2
-            # pg.draw.circle(self.image, Colour.red, self.rect.center, self.radius)
+            # self.radius = self.rect.width * 0.7 // 2
+            # pg.draw.circle(self.image, Colour.red, self.rect.center, self.radius
+
+            self.mask = pg.mask.from_surface(self.image)
 
             self.rect.centerx = Game.Setting.width // 2
             self.rect.bottom = Game.Setting.height - Game.Setting.screen_board
@@ -96,8 +98,10 @@ class Game:
             # self.image.fill(Colour.red)
             self.rect = self.image.get_rect()
 
-            self.radius = self.rect.width * 0.65 // 2
+            # self.radius = self.rect.width * 0.65 // 2
             # pg.draw.circle(self.image, Colour.purple, self.rect.center, self.radius)
+
+            self.mask = pg.mask.from_surface(self.image)
 
             self.rect.x = rd.randint(0, Game.Setting.width - self.rect.width)
             self.rect.y = 0
@@ -121,8 +125,10 @@ class Game:
             # self.image.fill(Colour.purple)
             self.rect = self.image.get_rect()
 
-            self.radius = self.rect.width * 0.5 // 2
+            # self.radius = self.rect.width * 0.5 // 2
             # pg.draw.circle(self.image, Colour.cyan, self.rect.center, self.radius)
+
+            self.mask = pg.mask.from_surface(self.image)
 
             self.speed_x = 0
             self.speed_y = 0
@@ -282,14 +288,14 @@ class Game:
             self.score_snd.play()
 
         rubbishes_hits_fishes = pg.sprite.groupcollide(self.rubbishes, self.fishes, False, True,
-                                                       pg.sprite.collide_circle)
+                                                       pg.sprite.collide_mask)
         for _ in rubbishes_hits_fishes:
             self.score -= 1
             fish = Game.Fish()
             self.all_sprites.add(fish)
             self.fishes.add(fish)
 
-        hits_fishes = pg.sprite.spritecollide(self.player, self.fishes, False, pg.sprite.collide_circle)
+        hits_fishes = pg.sprite.spritecollide(self.player, self.fishes, False, pg.sprite.collide_mask)
         if hits_fishes:
             die = True
             self.game_over_snd.play()

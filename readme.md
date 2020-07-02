@@ -15,5 +15,3 @@ Try to avoid rubbish bumping into the fish, which will make the fish disappear. 
 you will also lose 1 point if 1 rubbish bumped into 1 fish!
 The strategy to stop rubbishes bumping into fishes is to collect the rubbish BEFORE it bumps into 
 a fish.
-You might be frustrated by a fish colliding into your tummy (because the tummy of the diver image 
-was too thin, but I don't want to do Perfect Pixel Collision because it'll waste a lot of time).
