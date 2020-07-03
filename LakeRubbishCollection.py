@@ -46,9 +46,10 @@ class Game:
     class Player(pg.sprite.Sprite):
         def __init__(self):
             pg.sprite.Sprite.__init__(self)
-            player_img = pg.image.load(os.path.join(Game.Setting.img_dir, 'diver.png')).convert()
-            self.image = pg.transform.scale(player_img, (Game.Setting.player_width,
-                                                         Game.Setting.player_height))
+            self.player_img = pg.image.load(os.path.join(Game.Setting.img_dir, 'diver.png')).convert()
+            self.player_img = pg.transform.scale(self.player_img,
+                                                 (Game.Setting.player_width, Game.Setting.player_height))
+            self.image = self.player_img
             self.image.set_colorkey(Colour.blue)
             # self.image = pg.Surface((50, 38))
             # self.image.fill(Colour.green)
@@ -86,6 +87,12 @@ class Game:
                 self.rect.bottom = Game.Setting.height - Game.Setting.screen_board
             if self.rect.top < Game.Setting.screen_board:
                 self.rect.top = Game.Setting.screen_board
+            # Flip player if swim backwards
+            if self.speed_x < 0:
+                self.image = pg.transform.flip(self.player_img, True, False)
+            elif self.speed_x > 0:
+                self.image = pg.transform.flip(self.player_img, False, False)
+            self.mask = pg.mask.from_surface(self.image)
 
     class Rubbish(pg.sprite.Sprite):
         def __init__(self):
@@ -291,6 +298,8 @@ class Game:
                                                        pg.sprite.collide_mask)
         for _ in rubbishes_hits_fishes:
             self.score -= 1
+            if self.score < 0:
+                self.score = 0
             fish = Game.Fish()
             self.all_sprites.add(fish)
             self.fishes.add(fish)
@@ -336,7 +345,7 @@ class Game:
                        size=24, x=Game.Setting.width // 2, y=Game.Setting.height // 2 - 40)
         self.draw_text(surf=self.screen, text=f'Click ***SPACE*** to re-spawn!',
                        size=24, x=Game.Setting.width // 2, y=Game.Setting.height // 2)
-        self.draw_text(surf=self.screen, text='Game over reason: %s' % self.game_over_reason,
+        self.draw_text(surf=self.screen, text='Reason: %s' % self.game_over_reason,
                        size=18, x=Game.Setting.width // 2, y=Game.Setting.height // 2 + 60)
 
     def draw_text(self, surf, text: str, size: int, x: int, y: int, antialias: bool = True,
