@@ -1,8 +1,30 @@
-#### Introduction:
-LakeRubbishCollection is my work for Science Talent Search. It is a computer game (program (using 
-the computer language Python)).
+## Introduction:
+LakeRubbishCollection is my work for Science Talent Search. It is a computer game (program (using the computer language Python)).
 
-#### Instructions:
+## Prepare to play:
+- Install the latest python environment on your computer
+refer to https://www.python.org/downloads/release
+
+- Install the pygame dependencies.
+```sh
+$ pip install -U pygame
+```
+
+- Install GIT(version control) tool on your computer
+refer to https://git-scm.com/downloads
+
+- Download the game repository
+```sh
+$ git clone https://gitee.com/tyronexj/LakeRubbishCollection.git
+```
+
+- Start the game
+```sh
+$ cd LakeRubbishCollection
+$ python LakeRubbishCollection.py
+```
+
+## Instructions:
 There's too many rubbishes in the lake, which is harmful to either the ecosystem and the environment.
 Your mission is to collect rubbish as much as possible in 30 seconds without interrupting the fishes,
 which is bumping into them. Remember to keep an eye on the 'time left' section!

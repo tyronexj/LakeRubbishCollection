@@ -266,11 +266,6 @@ class Game:
         self.show_instruction(text=f"an eye on the 'time left' section! ", y=instruction_y)
         instruction_y += instruction_y_inc
         instruction_y += instruction_y_inc
-        self.show_instruction(text=f"Your score may go under 0. So you'd ", y=instruction_y, size=15)
-        instruction_y += instruction_y_inc
-        self.show_instruction(text=f"better don't let it (go under 0)!", y=instruction_y, size=15)
-        instruction_y += instruction_y_inc
-        instruction_y += instruction_y_inc
         self.draw_text(surf=self.screen, text=f'Click ***SPACE*** to Start!',
                        size=24, x=Game.Setting.width // 2, y=instruction_y)
 
@@ -297,7 +292,7 @@ class Game:
         rubbishes_hits_fishes = pg.sprite.groupcollide(self.rubbishes, self.fishes, False, True,
                                                        pg.sprite.collide_mask)
         for _ in rubbishes_hits_fishes:
-            self.score -= 1
+            self.score -= 2
             if self.score < 0:
                 self.score = 0
             fish = Game.Fish()
